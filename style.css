@@ -176,3 +176,12 @@ body {
 .progress-bar-gold   { background: linear-gradient(90deg, var(--gold), #d9a94a); }
 .progress-bar-violet { background: linear-gradient(90deg, var(--violet), #9077bd); }
 .progress-bar-teal   { background: linear-gradient(90deg, var(--teal), #2c8f80); }
+
+/* ===== 備份槽列表 ===== */
+.backup-slot-row {
+  border: 1px solid #e2e5ea;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.backup-slot-row:last-child { margin-bottom: 0; }

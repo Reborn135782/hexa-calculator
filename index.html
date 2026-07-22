@@ -57,7 +57,6 @@
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h2 class="h6 text-uppercase fw-bold text-center progress-card-title mb-3">核心畢業進度（不含 Janus）</h2>
-          <p class="text-muted small text-center mb-3">此區塊排除 Janus 目前已消耗與滿等所需的 Sol Erda / Fragment，調整 Janus 等級不會影響這裡的數字</p>
           <div id="excludingJanusProgressContainer"></div>
         </div>
       </div>
@@ -65,50 +64,26 @@
   </div>
 
   <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportDataModal" id="openExportModalButton">匯出資料</button>
-    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#importDataModal" id="openImportModalButton">匯入資料</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#backupModal" id="openBackupModalButton">資料備份</button>
     <button type="button" class="btn btn-danger btn-sm" id="resetAllCoresButton">重設全部核心</button>
   </div>
 
 </div>
 
-<!-- 匯出資料 Modal -->
-<div class="modal fade" id="exportDataModal" tabindex="-1" aria-labelledby="exportDataModalLabel" aria-hidden="true">
+<!-- 備份與讀取管理 Modal -->
+<div class="modal fade" id="backupModal" tabindex="-1" aria-labelledby="backupModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exportDataModalLabel">匯出資料</h5>
+        <h5 class="modal-title" id="backupModalLabel">備份與讀取管理</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p class="small text-muted">複製以下 JSON 內容自行保存，或直接下載成檔案備份。</p>
-        <textarea id="exportedJsonTextarea" class="form-control font-monospace small" rows="10" readonly></textarea>
-        <div id="copyFeedbackText" class="form-text text-success mt-1 d-none">已複製到剪貼簿</div>
+        <p class="small text-muted">最多可保存 3 組備份，儲存與載入都只影響瀏覽器本機資料。</p>
+        <div id="backupSlotListContainer"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary btn-sm" id="copyExportedJsonButton">複製到剪貼簿</button>
-        <button type="button" class="btn btn-primary btn-sm" id="downloadExportedJsonButton">下載 .json 檔案</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 匯入資料 Modal -->
-<div class="modal fade" id="importDataModal" tabindex="-1" aria-labelledby="importDataModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="importDataModalLabel">匯入資料</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="small text-muted">貼上先前匯出的 JSON 內容：</p>
-        <textarea id="importJsonTextarea" class="form-control font-monospace small" rows="10" placeholder='{"coreLevels": {"skill1": 12, "mastery1": 30, ...}}'></textarea>
-        <div id="importErrorAlert" class="alert alert-danger mt-2 py-2 small d-none"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary btn-sm" id="confirmImportButton">確認匯入</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
       </div>
     </div>
   </div>
