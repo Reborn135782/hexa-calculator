@@ -1,601 +1,122 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<link rel="icon" type="image/png" href="favicon.ico">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
 <title>六轉核心進度計算器</title>
-<style>
-  :root {
-    --ink: #1c2230;
-    --panel: #ffffff;
-    --page: #eef0f4;
-    --line: #d7dae2;
-    --gold: #b8862f;
-    --gold-deep: #7a5a1e;
-    --violet: #6c4fa0;
-    --teal: #1d6e63;
-    --muted: #6b7280;
-
-    --skill: #8b5fc9;
-    --skill-deep: #5f3d94;
-    --mastery: #c2447e;
-    --mastery-deep: #8f2f5c;
-    --boost: #2fa3c9;
-    --boost-deep: #1c7896;
-    --common: #8a93a4;
-    --common-deep: #5d6674;
-
-    --danger: #c0392b;
-    --danger-deep: #922b21;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--page);
-    color: var(--ink);
-    font-family: -apple-system, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
-    padding: 24px 16px 40px;
-  }
-  .wrap { max-width: 720px; margin: 0 auto; }
-  header { margin-bottom: 18px; }
-  h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 4px; }
-  .sub { color: var(--muted); font-size: 13px; }
-
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 16px 18px;
-    margin-bottom: 16px;
-  }
-  .card h2 {
-    font-size: 14px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--gold-deep);
-    margin: 0 0 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .card h2::before {
-    content: ''; width: 4px; height: 14px; background: var(--gold);
-    border-radius: 2px; display: inline-block;
-  }
-
-  .save-hint { font-size: 11px; color: var(--muted); text-align: right; margin-top: -4px; margin-bottom: 12px; min-height: 14px; }
-
-  /* ===== 六角星盤：唯一輸入/顯示介面 ===== */
-  .hexa-plate-card h2 { justify-content: center; }
-  .hexa-plate-card h2::before { display: none; }
-  .hexa-plate-wrap { display: flex; justify-content: center; }
-  .hexa-plate {
-    position: relative;
-    width: min(640px, 96vw);
-    aspect-ratio: 1 / 1;
-    margin: 4px 0 10px;
-    background: radial-gradient(circle at 50% 50%, #232a3d 0%, #171c29 72%);
-    border-radius: 18px;
-    overflow: visible;
-  }
-  .hex-divider {
-    position: absolute; left: 50%; top: 50%;
-    width: 2px; height: 9%;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0));
-    transform-origin: top center;
-    z-index: 1;
-  }
-  .hex-divider.d-tl { transform: rotate(-135deg); }
-  .hex-divider.d-tr { transform: rotate(135deg); }
-  .hex-divider.d-bl { transform: rotate(-45deg); }
-  .hex-divider.d-br { transform: rotate(45deg); }
-
-  .hex-hub {
-    position: absolute; left: 50%; top: 50%;
-    width: 12.1%; aspect-ratio: 0.87 / 1;
-    transform: translate(-50%, -50%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    background: radial-gradient(circle, #efe6ff 0%, #8467c9 65%, #4d3a86 100%);
-    box-shadow: 0 0 22px rgba(160,130,230,0.85), 0 0 0 2px rgba(255,255,255,0.35);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 800; letter-spacing: 0.05em;
-    font-size: clamp(12px, 3vw, 16px);
-    z-index: 2;
-  }
-
-  .hex-tile {
-    position: absolute;
-    width: 12.1%;
-    aspect-ratio: 0.87 / 1;
-    transform: translate(-50%, -50%);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #fff;
-    cursor: pointer;
-    border: none;
-    padding: 0;
-    font-family: inherit;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.45);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-    z-index: 3;
-  }
-  .hex-tile:hover { transform: translate(-50%, -50%) scale(1.08); z-index: 5; }
-  .hex-tile:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .hex-tile .hex-name { font-size: clamp(7px, 1.6vw, 9px); font-weight: 600; opacity: 0.85; line-height: 1.1; }
-  .hex-tile .hex-lvl { font-size: clamp(13px, 3.2vw, 18px); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
-
-  .hex-tile.skill    { background: radial-gradient(circle at 35% 28%, #b294e6, var(--skill-deep));   box-shadow: 0 0 10px rgba(139,95,201,0.55); }
-  .hex-tile.mastery  { background: radial-gradient(circle at 35% 28%, #e590b6, var(--mastery-deep)); box-shadow: 0 0 10px rgba(194,68,126,0.55); }
-  .hex-tile.boost    { background: radial-gradient(circle at 35% 28%, #85d6ee, var(--boost-deep));   box-shadow: 0 0 10px rgba(47,163,201,0.55); }
-  .hex-tile.common   { background: radial-gradient(circle at 35% 28%, #c3c9d2, var(--common-deep));  box-shadow: 0 0 10px rgba(138,147,164,0.45); }
-
-  .hex-tile.zero { filter: grayscale(65%); opacity: 0.45; box-shadow: none; }
-  .hex-tile.editing { transform: translate(-50%, -50%) scale(1.12); z-index: 6; box-shadow: 0 0 0 3px #fff, 0 0 14px rgba(255,255,255,0.6); }
-
-  .hexa-legend {
-    display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
-    font-size: 11px; color: var(--muted); margin-top: 2px;
-  }
-  .hexa-legend span { display: flex; align-items: center; gap: 5px; }
-  .hexa-legend .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
-  .hexa-legend .dot.skill { background: var(--skill); }
-  .hexa-legend .dot.mastery { background: var(--mastery); }
-  .hexa-legend .dot.boost { background: var(--boost); }
-  .hexa-legend .dot.common { background: var(--common); }
-  .hexa-legend .tip { width: 100%; text-align: center; margin-top: 2px; }
-
-  /* 微型輸入編輯器（點擊六角格彈出） */
-  .hex-editor {
-    position: absolute;
-    transform: translate(-50%, -100%);
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 8px 10px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-  }
-  .hex-editor::after {
-    content: '';
-    position: absolute;
-    left: 50%; top: 100%;
-    transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: #ffffff;
-  }
-  .hex-editor .hex-editor-label {
-    font-size: 11px; font-weight: 700; color: var(--ink);
-  }
-  .hex-editor input[type="number"] {
-    width: 64px;
-    padding: 5px 6px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    font-size: 14px;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .hex-editor input[type="number"]:focus { outline: none; border-color: var(--gold); }
-
-  /* ===== 進度條 ===== */
-  .progress-block { margin-bottom: 10px; }
-  .progress-block:last-child { margin-bottom: 0; }
-  .progress-top {
-    display: flex; justify-content: space-between; font-size: 11px;
-    color: var(--muted); margin-bottom: 4px; gap: 8px; flex-wrap: wrap;
-  }
-  .progress-top .res-name { display: flex; align-items: center; gap: 5px; }
-  .progress-top .res-name .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .progress-top .amt { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
-  .bar-track { height: 12px; background: #eceef2; border-radius: 999px; overflow: hidden; position: relative; }
-  .bar-fill { height: 100%; border-radius: 999px; transition: width 0.35s ease; }
-  .bar-fill.gold { background: linear-gradient(90deg, var(--gold), #d9a94a); }
-  .bar-fill.violet { background: linear-gradient(90deg, var(--violet), #9077bd); }
-  .bar-fill.teal { background: linear-gradient(90deg, var(--teal), #2c8f80); }
-  .bar-pct {
-    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-    font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.3);
-  }
-
-  .global-progress-card { max-width: 480px; margin: 0 auto 16px; }
-  .global-progress-card h2 { justify-content: center; }
-  .global-progress-card h2::before { display: none; }
-  .global-progress-card .note {
-    font-size: 11px; color: var(--muted); text-align: center;
-    margin: -6px 0 12px;
-  }
-
-  .reset-area { text-align: center; margin-top: 4px; }
-  .btn-danger {
-    background: var(--danger);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 22px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-  .btn-danger:hover { background: var(--danger-deep); }
-  .btn-danger:active { transform: translateY(1px); }
-</style>
+<link rel="icon" type="image/png" href="favicon.ico">
+<!-- Bootstrap 5 CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>六轉核心進度計算器</h1>
-    <div class="sub">點擊星盤上的任一核心，輸入 0～30 等級，即時計算累積消耗與畢業進度</div>
+<div class="container py-4 app-container">
+
+  <header class="mb-3">
+    <h1 class="h4 fw-bold mb-1">六轉核心進度計算器</h1>
+    <p class="text-muted small mb-0">點擊星盤上的任一核心，輸入 0～30 等級，即時計算累積消耗與畢業進度</p>
   </header>
 
-  <div class="save-hint" id="save-hint">&nbsp;</div>
+  <div class="card shadow-sm mb-3 hexa-plate-card">
+    <div class="card-body text-center">
+      <h2 class="h6 text-uppercase fw-bold hexa-card-title mb-3">六轉星盤</h2>
 
-  <div class="card hexa-plate-card">
-    <h2>六轉星盤</h2>
-    <div class="hexa-plate-wrap">
-      <div class="hexa-plate" id="hexa-plate">
-        <div class="hex-divider d-tl"></div>
-        <div class="hex-divider d-tr"></div>
-        <div class="hex-divider d-bl"></div>
-        <div class="hex-divider d-br"></div>
-        <div class="hex-hub">Ⅵ</div>
-        <!-- 節點以 JS 動態產生 -->
+      <div class="d-flex justify-content-center">
+        <div class="hexa-plate" id="hexaPlateElement">
+          <div class="hex-divider d-tl"></div>
+          <div class="hex-divider d-tr"></div>
+          <div class="hex-divider d-bl"></div>
+          <div class="hex-divider d-br"></div>
+          <div class="hex-hub">Ⅵ</div>
+          <!-- 六角格由 script.js 動態產生 -->
+        </div>
+      </div>
+
+      <div class="hexa-legend d-flex flex-wrap justify-content-center gap-2 mt-3">
+        <span class="badge rounded-pill hexa-badge hexa-badge-skill">Skill</span>
+        <span class="badge rounded-pill hexa-badge hexa-badge-mastery">Mastery</span>
+        <span class="badge rounded-pill hexa-badge hexa-badge-boost">Boost</span>
+        <span class="badge rounded-pill hexa-badge hexa-badge-common">Common</span>
+        <span class="badge rounded-pill hexa-badge hexa-badge-locked">🔒 未開放</span>
+      </div>
+      <div class="form-text mt-2">點擊六角格即可輸入 / 修改等級</div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="h6 text-uppercase fw-bold text-center progress-card-title mb-3">核心合計進度</h2>
+          <div id="overallProgressContainer"></div>
+        </div>
       </div>
     </div>
-    <div class="hexa-legend">
-      <span><span class="dot skill"></span>Skill Node</span>
-      <span><span class="dot mastery"></span>Mastery Node</span>
-      <span><span class="dot boost"></span>Boost Node</span>
-      <span><span class="dot common"></span>Common Node</span>
-      <div class="tip">點擊六角格即可輸入 / 修改等級</div>
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="h6 text-uppercase fw-bold text-center progress-card-title mb-3">核心畢業進度（不含 Janus）</h2>
+          <p class="text-muted small text-center mb-3">此區塊排除 Janus 目前已消耗與滿等所需的 Sol Erda / Fragment，調整 Janus 等級不會影響這裡的數字</p>
+          <div id="excludingJanusProgressContainer"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card global-progress-card">
-    <h2>核心合計進度</h2>
-    <div id="global-progress-bars"></div>
+  <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#exportDataModal" id="openExportModalButton">匯出資料</button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#importDataModal" id="openImportModalButton">匯入資料</button>
+    <button type="button" class="btn btn-danger btn-sm" id="resetAllCoresButton">重設全部核心</button>
   </div>
 
-  <div class="card global-progress-card">
-    <h2>核心畢業進度（不含 Janus）</h2>
-    <div class="note">此區塊排除 Janus 目前已消耗與滿等所需的 Sol Erda / Fragment，調整 Janus 等級不會影響這裡的數字</div>
-    <div id="excl-progress-bars"></div>
-  </div>
+</div>
 
-  <div class="reset-area">
-    <button type="button" id="reset-btn" class="btn-danger">重設全部核心</button>
+<!-- 匯出資料 Modal -->
+<div class="modal fade" id="exportDataModal" tabindex="-1" aria-labelledby="exportDataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportDataModalLabel">匯出資料</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted">複製以下 JSON 內容自行保存，或直接下載成檔案備份。</p>
+        <textarea id="exportedJsonTextarea" class="form-control font-monospace small" rows="10" readonly></textarea>
+        <div id="copyFeedbackText" class="form-text text-success mt-1 d-none">已複製到剪貼簿</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="copyExportedJsonButton">複製到剪貼簿</button>
+        <button type="button" class="btn btn-primary btn-sm" id="downloadExportedJsonButton">下載 .json 檔案</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<script>
-const STORAGE_KEY = 'hexa-core-tracker-v2';
-const MAX_LEVEL = 30;
-
-const hexaData = {
-  "skill node": [
-    { lvl: "0->1", erda: 5, frag: 100 }, { lvl: "1->2", erda: 1, frag: 30 }, { lvl: "2->3", erda: 1, frag: 35 },
-    { lvl: "3->4", erda: 1, frag: 40 }, { lvl: "4->5", erda: 2, frag: 45 }, { lvl: "5->6", erda: 2, frag: 50 },
-    { lvl: "6->7", erda: 2, frag: 55 }, { lvl: "7->8", erda: 3, frag: 60 }, { lvl: "8->9", erda: 3, frag: 65 },
-    { lvl: "9->10", erda: 10, frag: 200 }, { lvl: "10->11", erda: 3, frag: 80 }, { lvl: "11->12", erda: 3, frag: 90 },
-    { lvl: "12->13", erda: 4, frag: 100 }, { lvl: "13->14", erda: 4, frag: 110 }, { lvl: "14->15", erda: 4, frag: 120 },
-    { lvl: "15->16", erda: 4, frag: 130 }, { lvl: "16->17", erda: 4, frag: 140 }, { lvl: "17->18", erda: 4, frag: 150 },
-    { lvl: "18->19", erda: 5, frag: 160 }, { lvl: "19->20", erda: 15, frag: 350 }, { lvl: "20->21", erda: 5, frag: 170 },
-    { lvl: "21->22", erda: 5, frag: 180 }, { lvl: "22->23", erda: 5, frag: 190 }, { lvl: "23->24", erda: 5, frag: 200 },
-    { lvl: "24->25", erda: 5, frag: 210 }, { lvl: "25->26", erda: 6, frag: 220 }, { lvl: "26->27", erda: 6, frag: 230 },
-    { lvl: "27->28", erda: 6, frag: 240 }, { lvl: "28->29", erda: 7, frag: 250 }, { lvl: "29->30", erda: 20, frag: 500 }
-  ],
-  "mastery node": [
-    { lvl: "0->1", erda: 3, frag: 50 }, { lvl: "1->2", erda: 1, frag: 15 }, { lvl: "2->3", erda: 1, frag: 18 },
-    { lvl: "3->4", erda: 1, frag: 20 }, { lvl: "4->5", erda: 1, frag: 23 }, { lvl: "5->6", erda: 1, frag: 25 },
-    { lvl: "6->7", erda: 1, frag: 28 }, { lvl: "7->8", erda: 2, frag: 30 }, { lvl: "8->9", erda: 2, frag: 33 },
-    { lvl: "9->10", erda: 5, frag: 100 }, { lvl: "10->11", erda: 2, frag: 40 }, { lvl: "11->12", erda: 2, frag: 45 },
-    { lvl: "12->13", erda: 2, frag: 50 }, { lvl: "13->14", erda: 2, frag: 55 }, { lvl: "14->15", erda: 2, frag: 60 },
-    { lvl: "15->16", erda: 2, frag: 65 }, { lvl: "16->17", erda: 2, frag: 70 }, { lvl: "17->18", erda: 2, frag: 75 },
-    { lvl: "18->19", erda: 3, frag: 80 }, { lvl: "19->20", erda: 8, frag: 175 }, { lvl: "20->21", erda: 3, frag: 85 },
-    { lvl: "21->22", erda: 3, frag: 90 }, { lvl: "22->23", erda: 3, frag: 95 }, { lvl: "23->24", erda: 3, frag: 100 },
-    { lvl: "24->25", erda: 3, frag: 105 }, { lvl: "25->26", erda: 3, frag: 110 }, { lvl: "26->27", erda: 3, frag: 115 },
-    { lvl: "27->28", erda: 3, frag: 120 }, { lvl: "28->29", erda: 4, frag: 125 }, { lvl: "29->30", erda: 10, frag: 250 }
-  ],
-  "boost node": [
-    { lvl: "0->1", erda: 4, frag: 75 }, { lvl: "1->2", erda: 1, frag: 23 }, { lvl: "2->3", erda: 1, frag: 27 },
-    { lvl: "3->4", erda: 1, frag: 30 }, { lvl: "4->5", erda: 2, frag: 34 }, { lvl: "5->6", erda: 2, frag: 38 },
-    { lvl: "6->7", erda: 2, frag: 42 }, { lvl: "7->8", erda: 3, frag: 45 }, { lvl: "8->9", erda: 3, frag: 49 },
-    { lvl: "9->10", erda: 8, frag: 150 }, { lvl: "10->11", erda: 3, frag: 60 }, { lvl: "11->12", erda: 3, frag: 68 },
-    { lvl: "12->13", erda: 3, frag: 75 }, { lvl: "13->14", erda: 3, frag: 83 }, { lvl: "14->15", erda: 3, frag: 90 },
-    { lvl: "15->16", erda: 3, frag: 98 }, { lvl: "16->17", erda: 3, frag: 105 }, { lvl: "17->18", erda: 3, frag: 113 },
-    { lvl: "18->19", erda: 4, frag: 120 }, { lvl: "19->20", erda: 12, frag: 263 }, { lvl: "20->21", erda: 4, frag: 128 },
-    { lvl: "21->22", erda: 4, frag: 135 }, { lvl: "22->23", erda: 4, frag: 143 }, { lvl: "23->24", erda: 4, frag: 150 },
-    { lvl: "24->25", erda: 4, frag: 158 }, { lvl: "25->26", erda: 5, frag: 165 }, { lvl: "26->27", erda: 5, frag: 173 },
-    { lvl: "27->28", erda: 5, frag: 180 }, { lvl: "28->29", erda: 6, frag: 188 }, { lvl: "29->30", erda: 15, frag: 375 }
-  ],
-  "common node": [
-    { lvl: "0->1", erda: 7, frag: 125 }, { lvl: "1->2", erda: 2, frag: 38 }, { lvl: "2->3", erda: 2, frag: 44 },
-    { lvl: "3->4", erda: 2, frag: 50 }, { lvl: "4->5", erda: 3, frag: 57 }, { lvl: "5->6", erda: 3, frag: 63 },
-    { lvl: "6->7", erda: 3, frag: 69 }, { lvl: "7->8", erda: 5, frag: 75 }, { lvl: "8->9", erda: 5, frag: 82 },
-    { lvl: "9->10", erda: 14, frag: 300 }, { lvl: "10->11", erda: 5, frag: 110 }, { lvl: "11->12", erda: 5, frag: 124 },
-    { lvl: "12->13", erda: 6, frag: 138 }, { lvl: "13->14", erda: 6, frag: 152 }, { lvl: "14->15", erda: 6, frag: 165 },
-    { lvl: "15->16", erda: 6, frag: 179 }, { lvl: "16->17", erda: 6, frag: 193 }, { lvl: "17->18", erda: 6, frag: 207 },
-    { lvl: "18->19", erda: 7, frag: 220 }, { lvl: "19->20", erda: 17, frag: 525 }, { lvl: "20->21", erda: 7, frag: 234 },
-    { lvl: "21->22", erda: 7, frag: 248 }, { lvl: "22->23", erda: 7, frag: 262 }, { lvl: "23->24", erda: 7, frag: 275 },
-    { lvl: "24->25", erda: 7, frag: 289 }, { lvl: "25->26", erda: 9, frag: 303 }, { lvl: "26->27", erda: 9, frag: 317 },
-    { lvl: "27->28", erda: 9, frag: 330 }, { lvl: "28->29", erda: 10, frag: 344 }, { lvl: "29->30", erda: 20, frag: 750 }
-  ]
-};
-
-const CORE_LAYOUT = [
-  { id: 'skill1',   name: 'Skill 1',   type: 'skill node',   quadrant: 'tl' },
-  { id: 'skill2',   name: 'Skill 2',   type: 'skill node',   quadrant: 'tl' },
-  { id: 'mastery1', name: 'Mastery 1', type: 'mastery node', quadrant: 'tr' },
-  { id: 'mastery2', name: 'Mastery 2', type: 'mastery node', quadrant: 'tr' },
-  { id: 'mastery3', name: 'Mastery 3', type: 'mastery node', quadrant: 'tr' },
-  { id: 'mastery4', name: 'Mastery 4', type: 'mastery node', quadrant: 'tr' },
-  { id: 'boost1',   name: 'Boost 1',   type: 'boost node',   quadrant: 'bl' },
-  { id: 'boost2',   name: 'Boost 2',   type: 'boost node',   quadrant: 'bl' },
-  { id: 'boost3',   name: 'Boost 3',   type: 'boost node',   quadrant: 'bl' },
-  { id: 'boost4',   name: 'Boost 4',   type: 'boost node',   quadrant: 'bl' },
-  { id: 'common1',  name: 'Common 1',  type: 'common node',  quadrant: 'br' },
-  { id: 'common2',  name: 'Common 2',  type: 'common node',  quadrant: 'br' },
-];
-const HEX_QUADRANT_CLASS = { tl: 'skill', tr: 'mastery', bl: 'boost', br: 'common' };
-
-/* ---- 六角星盤幾何：尖頂六角形（尖角在正上/正下）----
-   六個合法鄰接方向：NE / E / SE / SW / W / NW。設 s = S：
-   對角方向 NE/NW/SE/SW 的水平分量 = (√3/2)s，垂直分量 = 1.5s
-   正橫向 E/W 的水平分量 = √3s，垂直分量 = 0
-   （這些都是兩個同尺寸正六角形沿該方向緊貼相連、剛好不重疊的距離）
-
-   mastery（右上，4 格）路徑：NE → NE → E → NE
-     M1、M2 沿右上方向排列；M3 在 M2 正右方；M4 在 M3 右上方
-   skill（左上，2 格）路徑：NW → NW
-   boost / common 分別是 mastery / skill 對中心點做 180° 鏡射（座標取負），
-   路徑自動變成 SW → SW → W → SW，所以 B3 落在 B2 正左方、B4 落在 B3 左下方 */
-const S = 7;
-const NE = { x: (Math.sqrt(3) / 2) * S, y: -1.5 * S };
-const NW = { x: -(Math.sqrt(3) / 2) * S, y: -1.5 * S };
-const E  = { x: Math.sqrt(3) * S, y: 0 };
-
-function walk(steps) {
-  let pos = { x: 0, y: 0 };
-  const out = [];
-  steps.forEach(step => {
-    pos = { x: pos.x + step.x, y: pos.y + step.y };
-    out.push({ ...pos });
-  });
-  return out;
-}
-
-const masteryPos = walk([NE, NE, E, NE]);
-const skillPos   = walk([NW, NW]);
-const boostPos = masteryPos.map(p => ({ x: -p.x, y: -p.y }));
-const commonPos = skillPos.map(p => ({ x: -p.x, y: -p.y }));
-
-const HEX_POSITIONS = { tl: skillPos, tr: masteryPos, bl: boostPos, br: commonPos };
-
-let coreLevels = {};
-let saveTimer = null;
-let editingId = null;
-const saveHint = document.getElementById('save-hint');
-const plateEl = document.getElementById('hexa-plate');
-
-const maxCostCache = {};
-Object.keys(hexaData).forEach(type => {
-  maxCostCache[type] = cumulativeCost(type, MAX_LEVEL);
-});
-
-function fmt(n) {
-  return Math.max(0, Math.round(n)).toLocaleString('zh-Hant-TW');
-}
-
-function clampLevel(v) {
-  return Math.max(0, Math.min(MAX_LEVEL, v));
-}
-
-function cumulativeCost(nodeType, currentLevel) {
-  const rows = hexaData[nodeType];
-  const lvl = clampLevel(currentLevel);
-  let erda = 0, frag = 0;
-  for (let i = 0; i < lvl; i++) {
-    erda += rows[i].erda;
-    frag += rows[i].frag;
-  }
-  return { erda, frag };
-}
-
-// 通用合計計算：excludeId 傳入要排除的核心 id（例如 'common1'），傳 null 代表全部核心都算
-function computeTotals(excludeId) {
-  let totalErda = 0, totalFrag = 0, maxErda = 0, maxFrag = 0;
-  CORE_LAYOUT.forEach(({ id, type }) => {
-    if (id === excludeId) return;
-    const used = cumulativeCost(type, coreLevels[id]);
-    const max = maxCostCache[type];
-    totalErda += used.erda;
-    totalFrag += used.frag;
-    maxErda += max.erda;
-    maxFrag += max.frag;
-  });
-  const overallPct = (maxErda + maxFrag) > 0 ? ((totalErda + totalFrag) / (maxErda + maxFrag)) * 100 : 100;
-  return { totalErda, totalFrag, maxErda, maxFrag, overallPct };
-}
-
-function globalBarBlock(name, dotColor, barClass, pct, detailText) {
-  const clamped = Math.min(100, Math.max(0, pct));
-  return `<div class="progress-block">
-    <div class="progress-top">
-      <span class="res-name"><span class="dot" style="background:${dotColor};"></span>${name}</span>
-      <span class="amt">${detailText}</span>
+<!-- 匯入資料 Modal -->
+<div class="modal fade" id="importDataModal" tabindex="-1" aria-labelledby="importDataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="importDataModalLabel">匯入資料</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted">貼上先前匯出的 JSON 內容：</p>
+        <textarea id="importJsonTextarea" class="form-control font-monospace small" rows="10" placeholder='{"coreLevels": {"skill1": 12, "mastery1": 30, ...}}'></textarea>
+        <div id="importErrorAlert" class="alert alert-danger mt-2 py-2 small d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary btn-sm" id="confirmImportButton">確認匯入</button>
+      </div>
     </div>
-    <div class="bar-track">
-      <div class="bar-fill ${barClass}" style="width:${clamped}%;"></div>
-      <span class="bar-pct">${clamped.toFixed(1)}%</span>
-    </div>
-  </div>`;
-}
+  </div>
+</div>
 
-function renderProgressBars(containerId, totals) {
-  const erdaPct = totals.maxErda > 0 ? (totals.totalErda / totals.maxErda) * 100 : 100;
-  const fragPct = totals.maxFrag > 0 ? (totals.totalFrag / totals.maxFrag) * 100 : 100;
-  document.getElementById(containerId).innerHTML =
-    globalBarBlock('Sol Erda', 'var(--gold)', 'gold', erdaPct, `${fmt(totals.totalErda)} / ${fmt(totals.maxErda)}`) +
-    globalBarBlock('Sol Erda Fragment', 'var(--violet)', 'violet', fragPct, `${fmt(totals.totalFrag)} / ${fmt(totals.maxFrag)}`) +
-    globalBarBlock('總進度', 'var(--teal)', 'teal', totals.overallPct, `${totals.overallPct.toFixed(1)}%`);
-}
+<!-- 六角格點擊編輯用的微型輸入框（由 script.js 動態插入定位） -->
 
-function refreshSummary() {
-  renderProgressBars('global-progress-bars', computeTotals(null));
-  renderProgressBars('excl-progress-bars', computeTotals('common1'));
-}
-
-// ---- 星盤渲染（唯一輸入介面）----
-function renderHexPlate() {
-  plateEl.querySelectorAll('.hex-tile').forEach(el => el.remove());
-  CORE_LAYOUT.forEach(c => {
-    const pos = HEX_POSITIONS[c.quadrant][indexInQuadrant(c)];
-    const level = coreLevels[c.id];
-    const left = 50 + pos.x;
-    const top = 50 + pos.y;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = `hex-tile ${HEX_QUADRANT_CLASS[c.quadrant]}${level === 0 ? ' zero' : ''}`;
-    btn.style.left = left + '%';
-    btn.style.top = top + '%';
-    btn.dataset.id = c.id;
-    btn.setAttribute('aria-label', `${c.name}，目前等級 ${level}，點擊修改`);
-    btn.innerHTML = `<span class="hex-name">${c.name}</span><span class="hex-lvl">${level}</span>`;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openEditor(c.id, btn);
-    });
-    plateEl.appendChild(btn);
-  });
-}
-
-function indexInQuadrant(core) {
-  const siblings = CORE_LAYOUT.filter(c => c.quadrant === core.quadrant);
-  return siblings.indexOf(core);
-}
-
-// ---- 點擊六角格彈出的微型輸入編輯器 ----
-function openEditor(id, tileEl) {
-  closeEditor(true); // 先提交上一個還開著的編輯框（若有）
-  editingId = id;
-  tileEl.classList.add('editing');
-
-  const config = CORE_LAYOUT.find(c => c.id === id);
-  const editor = document.createElement('div');
-  editor.className = 'hex-editor';
-  editor.id = 'active-hex-editor';
-  editor.style.left = tileEl.style.left;
-  editor.style.top = `calc(${tileEl.style.top} - 9%)`;
-  editor.innerHTML = `
-    <div class="hex-editor-label">${config.name}</div>
-    <input type="number" min="0" max="30" step="1" value="${coreLevels[id]}" />
-  `;
-  plateEl.appendChild(editor);
-
-  const input = editor.querySelector('input');
-  input.focus();
-  input.select();
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { commitEditor(); }
-    else if (e.key === 'Escape') { closeEditor(false); }
-  });
-  editor.addEventListener('click', (e) => e.stopPropagation());
-}
-
-function commitEditor() {
-  if (!editingId) return;
-  const editor = document.getElementById('active-hex-editor');
-  if (!editor) return;
-  const input = editor.querySelector('input');
-  const newLevel = clampLevel(parseInt(input.value, 10) || 0);
-  coreLevels[editingId] = newLevel;
-  closeEditor(false);
-  renderHexPlate();
-  refreshSummary();
-  scheduleSave();
-}
-
-function closeEditor(shouldCommit) {
-  const editor = document.getElementById('active-hex-editor');
-  if (editingId && shouldCommit && editor) {
-    const input = editor.querySelector('input');
-    const newLevel = clampLevel(parseInt(input.value, 10) || 0);
-    coreLevels[editingId] = newLevel;
-    renderHexPlate();
-    refreshSummary();
-    scheduleSave();
-  }
-  if (editor) editor.remove();
-  document.querySelectorAll('.hex-tile.editing').forEach(el => el.classList.remove('editing'));
-  editingId = null;
-}
-
-// 點擊星盤以外的地方：提交並關閉目前編輯框
-document.addEventListener('click', () => {
-  if (editingId) commitEditor();
-});
-
-// ---- 存檔機制 ----
-function saveNow() {
-  clearTimeout(saveTimer);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ coreLevels }));
-    saveHint.textContent = '已自動儲存';
-  } catch (e) {
-    saveHint.textContent = '儲存失敗';
-  }
-}
-
-function scheduleSave() {
-  saveHint.textContent = '儲存中…';
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNow, 300);
-}
-
-window.addEventListener('beforeunload', saveNow);
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') saveNow();
-});
-
-function loadAll() {
-  CORE_LAYOUT.forEach(c => { coreLevels[c.id] = 0; });
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const loaded = JSON.parse(raw);
-      if (loaded.coreLevels) {
-        CORE_LAYOUT.forEach(c => {
-          if (typeof loaded.coreLevels[c.id] === 'number') {
-            coreLevels[c.id] = clampLevel(loaded.coreLevels[c.id]);
-          }
-        });
-      }
-    }
-  } catch (e) {}
-}
-
-// ---- 重設功能（共用函式）----
-function resetAllCores() {
-  CORE_LAYOUT.forEach(c => { coreLevels[c.id] = 0; });
-  saveNow();
-  renderHexPlate();
-  refreshSummary();
-}
-
-document.getElementById('reset-btn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  const confirmed = confirm('確定要將所有核心等級歸零嗎？此動作無法復原。');
-  if (confirmed) {
-    resetAllCores();
-  }
-});
-
-loadAll();
-renderHexPlate();
-refreshSummary();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
