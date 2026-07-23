@@ -205,8 +205,18 @@
    }
    
    function refreshAllProgressSections() {
-     renderProgressSection('overallProgressContainer', calculateGraduationTotals(null));
+     const overallTotals = calculateGraduationTotals(null);
+     renderProgressSection('overallProgressContainer', overallTotals);
      renderProgressSection('excludingJanusProgressContainer', calculateGraduationTotals(JANUS_CORE_ID));
+     updateHubProgressRing(overallTotals.overallPercent);
+   }
+   
+   // 中心六角形進度環：用 conic-gradient 依「總進度」百分比即時填色，是資料驅動的視覺，不是純裝飾
+   function updateHubProgressRing(overallPercent) {
+     const hubRingElement = document.getElementById('hexHubRing');
+     if (!hubRingElement) return;
+     const clampedPercent = Math.min(100, Math.max(0, overallPercent));
+     hubRingElement.style.setProperty('--hub-progress', `${clampedPercent}%`);
    }
    
    /* -------------------------------------------------------------------------
