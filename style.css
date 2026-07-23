@@ -1,12 +1,11 @@
 :root {
-  color-scheme: light; /* 頁面外圍改回淺色主題，星盤本體仍是獨立的深色區塊，不受此設定影響 */
+  color-scheme: dark; /* 全頁為深色主題，明確宣告 dark 讓瀏覽器原生控制項改用深色樣式，且不會被手機的強制深色模式二次覆蓋 */
   --hexa-bg: url("images/hexa backg.png");
 
-  --ink: #1c2230;
-  --panel: rgba(226, 233, 244, 0.75);
-  --page-start: #eef1f8;
-  --page-end: #dbe2ee;
-  --muted: #5b6472;
+  --ink: #ffffff;
+  --panel: rgba(15, 23, 42, 0.7);
+  --page: #05070f;
+  --muted: #9aa3b5;
 
   --gold: #b8862f;
   --gold-deep: #7a5a1e;
@@ -31,7 +30,12 @@
 * { box-sizing: border-box; }
 
 body {
-  background: linear-gradient(160deg, var(--page-start) 0%, var(--page-end) 100%) fixed;
+  background-color: var(--page);
+  background-image: var(--hexa-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-body);
   min-height: 100vh;
@@ -45,32 +49,32 @@ header h1 {
   display: inline-block;
   padding-bottom: 8px;
   border-bottom: 2px solid transparent;
-  border-image: linear-gradient(90deg, var(--gold), transparent) 1;
+  border-image: linear-gradient(90deg, var(--gold-bright), transparent) 1;
 }
 
 .card {
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   background-color: var(--panel);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   color: var(--ink);
-  box-shadow: 0 8px 24px rgba(30, 41, 59, 0.12) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45) !important;
 }
 
 .hexa-card-title,
 .progress-card-title,
-.modal-title { font-family: var(--font-display); color: var(--gold-deep); letter-spacing: 0.06em; }
+.modal-title { font-family: var(--font-display); color: var(--gold-bright); letter-spacing: 0.06em; }
 
 .text-muted,
-.form-text { color: var(--muted) !important; }
+.form-text { color: rgba(255, 255, 255, 0.65) !important; }
 
 .btn-outline-gold {
-  color: var(--gold-deep);
-  border: 1px solid rgba(122, 90, 30, 0.45);
+  color: var(--gold-bright);
+  border: 1px solid rgba(252, 211, 77, 0.5);
   background-color: transparent;
 }
-.btn-outline-gold:hover { background-color: rgba(184, 134, 47, 0.14); color: var(--gold-deep); border-color: var(--gold); }
+.btn-outline-gold:hover { background-color: rgba(252, 211, 77, 0.14); color: #fff; border-color: var(--gold-bright); }
 
 /* ===== 六角星盤 ===== */
 .hexa-plate {
@@ -217,23 +221,43 @@ header h1 {
 .hex-editor input[type="number"]:focus { outline: none; border-color: var(--gold-bright); }
 
 /* ===== 進度條（沿用 Bootstrap .progress，僅覆蓋顏色與高度） ===== */
-.progress { height: 10px; background-color: #e5e9f1; }
-.progress-bar-gold   { background: linear-gradient(90deg, var(--gold), #d9a94a); }
-.progress-bar-violet { background: linear-gradient(90deg, var(--violet), #9077bd); }
-.progress-bar-teal   { background: linear-gradient(90deg, var(--teal), #2c8f80); }
+.progress { height: 10px; background-color: rgba(255, 255, 255, 0.1); }
+.progress-bar-gold   { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); box-shadow: 0 0 8px rgba(252, 211, 77, 0.6); }
+.progress-bar-violet { background: linear-gradient(90deg, var(--violet), #9077bd); box-shadow: 0 0 8px rgba(144, 119, 189, 0.6); }
+.progress-bar-teal   { background: linear-gradient(90deg, var(--teal), #2c8f80); box-shadow: 0 0 8px rgba(44, 143, 128, 0.6); }
 
 /* ===== 備份槽列表 ===== */
 .backup-slot-row {
-  border: 1px solid rgba(30, 41, 59, 0.12);
-  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 10px;
 }
 .backup-slot-row:last-child { margin-bottom: 0; }
 
-/* ===== Bootstrap Modal（維持淺色主題，僅套用金色標題與字體） ===== */
+/* ===== Bootstrap Modal 改為深色玻璃風格 ===== */
 .modal-content {
+  background-color: rgba(15, 23, 42, 0.9);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   color: var(--ink);
 }
+.modal-header,
+.modal-footer { border-color: rgba(255, 255, 255, 0.12); }
+.modal .btn-close { filter: invert(1) grayscale(1); }
+.modal .form-control {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--ink);
+}
+.modal .form-control:focus {
+  background-color: rgba(255, 255, 255, 0.09);
+  border-color: var(--gold-bright);
+  color: var(--ink);
+  box-shadow: none;
+}
+.modal .btn-outline-secondary { color: #e5e7eb; border-color: rgba(255, 255, 255, 0.4); }
+.modal .btn-outline-secondary:hover { background-color: rgba(255, 255, 255, 0.12); color: #fff; }
