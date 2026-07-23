@@ -273,3 +273,79 @@ header h1 {
 }
 .modal .btn-outline-secondary { color: #e5e7eb; border-color: rgba(255, 255, 255, 0.4); }
 .modal .btn-outline-secondary:hover { background-color: rgba(255, 255, 255, 0.12); color: #fff; }
+
+/* ===== 玩家持有資源 (Player Inventory) ===== */
+.player-inventory-card {
+  border: 1px solid rgba(94, 234, 212, 0.35) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 22px rgba(45, 212, 191, 0.16) !important;
+}
+.inventory-card-title {
+  font-family: var(--font-display);
+  color: var(--gold-bright);
+  letter-spacing: 0.08em;
+}
+.inventory-subtitle {
+  color: rgba(94, 234, 212, 0.8);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  font-weight: 600;
+}
+.inventory-label {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85);
+  margin-bottom: 6px;
+}
+.inventory-icon { font-size: 13px; }
+.inventory-input {
+  background-color: rgba(6, 18, 26, 0.65);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.inventory-input:focus {
+  background-color: rgba(6, 18, 26, 0.85);
+  border-color: #5eead4;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.28);
+}
+.inventory-step-btn {
+  background-color: rgba(94, 234, 212, 0.08);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  color: #5eead4;
+  font-weight: 700;
+  width: 38px;
+}
+.inventory-step-btn:hover { background-color: rgba(94, 234, 212, 0.22); color: #fff; border-color: #5eead4; }
+.inventory-step-btn:active { transform: translateY(1px); }
+.inventory-clear-btn {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+.inventory-clear-btn:hover { background-color: rgba(255, 255, 255, 0.08); color: #fff; }
+
+/* 進度條上的「持有資源可涵蓋」高亮光效：疊在實際已耗用進度條下方，
+   露出的那一段（已耗用% 到 涵蓋% 之間）代表目前持有資源額外能補到的進度 */
+.progress { position: relative; overflow: hidden; }
+.progress-bar-coverage {
+  position: absolute;
+  top: 0; left: 0; height: 100%;
+  background: rgba(94, 234, 212, 0.5);
+  box-shadow: 0 0 10px rgba(94, 234, 212, 0.75);
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+.progress-bar { position: relative; z-index: 1; }
+.inventory-coverage-note {
+  color: #5eead4;
+  background-color: rgba(94, 234, 212, 0.08);
+  border: 1px solid rgba(94, 234, 212, 0.25);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.inventory-coverage-note b { color: #fff; }
