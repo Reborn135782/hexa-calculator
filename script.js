@@ -564,7 +564,129 @@
    }
    
    const backupModalElement = document.getElementById('backupModal');
-   backupModalElement.addEventListener('show.bs.modal', renderBackupSlotList);
+   backupModalElement.addEventListener('show.bs.modal', () => {
+     renderBackupSlotList();
+     resetExportImportSection();
+   });
+   
+   /* -------------------------------------------------------------------------
+      資料匯出 / 匯入（純前端，不經過任何伺服器）
+      匯出：把目前的核心等級與持有資源打包成 JSON，可複製到剪貼簿或下載成檔案
+      匯入：可貼上 JSON 字串，或直接上傳先前下載的 .json 檔案
+      ------------------------------------------------------------------------- */
+   function exportCoreDataAsJson() {
+     const exportPayload = {
+       exportedAt: new Date().toISOString(),
+       coreLevels: coreLevelsById,
+       ownedResources: playerOwnedResources
+     };
+     return JSON.stringify(exportPayload, null, 2);
+   }
+   
+   function resetExportImportSection() {
+     document.getElementById('exportedJsonTextarea').classList.add('d-none');
+     document.getElementById('exportActionButtons').classList.add('d-none');
+     document.getElementById('copyFeedbackText').classList.add('d-none');
+     document.getElementById('importJsonTextarea').value = '';
+     document.getElementById('importFileInput').value = '';
+     hideImportError();
+     document.getElementById('importSuccessText').classList.add('d-none');
+   }
+   
+   function showImportError(message) {
+     const importErrorAlertElement = document.getElementById('importErrorAlert');
+     importErrorAlertElement.textContent = message;
+     importErrorAlertElement.classList.remove('d-none');
+   }
+   
+   function hideImportError() {
+     document.getElementById('importErrorAlert').classList.add('d-none');
+   }
+   
+   document.getElementById('exportDataButton').addEventListener('click', () => {
+     const exportedJsonTextareaElement = document.getElementById('exportedJsonTextarea');
+     exportedJsonTextareaElement.value = exportCoreDataAsJson();
+     exportedJsonTextareaElement.classList.remove('d-none');
+     document.getElementById('exportActionButtons').classList.remove('d-none');
+     document.getElementById('copyFeedbackText').classList.add('d-none');
+   });
+   
+   document.getElementById('copyExportedJsonButton').addEventListener('click', async () => {
+     const exportedJsonTextareaElement = document.getElementById('exportedJsonTextarea');
+     const copyFeedbackElement = document.getElementById('copyFeedbackText');
+     try {
+       await navigator.clipboard.writeText(exportedJsonTextareaElement.value);
+     } catch (error) {
+       // 部分環境無法使用 Clipboard API，改用傳統選取方式讓使用者手動複製（Ctrl/Cmd+C）
+       exportedJsonTextareaElement.focus();
+       exportedJsonTextareaElement.select();
+       document.execCommand('copy');
+     }
+     copyFeedbackElement.classList.remove('d-none');
+   });
+   
+   document.getElementById('downloadExportedJsonButton').addEventListener('click', () => {
+     const exportedJsonText = exportCoreDataAsJson();
+     const jsonBlob = new Blob([exportedJsonText], { type: 'application/json' });
+     const downloadUrl = URL.createObjectURL(jsonBlob);
+     const downloadLinkElement = document.createElement('a');
+     downloadLinkElement.href = downloadUrl;
+     downloadLinkElement.download = `hexa-core-data-${new Date().toISOString().slice(0, 10)}.json`;
+     document.body.appendChild(downloadLinkElement);
+     downloadLinkElement.click();
+     document.body.removeChild(downloadLinkElement);
+     URL.revokeObjectURL(downloadUrl);
+   });
+   
+   // 上傳 .json 檔案時，直接把檔案內容讀進貼上欄位，跟手動貼上共用同一套匯入邏輯
+   document.getElementById('importFileInput').addEventListener('change', (event) => {
+     const selectedFile = event.target.files[0];
+     if (!selectedFile) return;
+     const fileReader = new FileReader();
+     fileReader.onload = () => {
+       document.getElementById('importJsonTextarea').value = fileReader.result;
+       hideImportError();
+     };
+     fileReader.onerror = () => {
+       showImportError('讀取檔案失敗，請確認檔案是否毀損或重新選擇。');
+     };
+     fileReader.readAsText(selectedFile);
+   });
+   
+   document.getElementById('confirmImportButton').addEventListener('click', () => {
+     hideImportError();
+     document.getElementById('importSuccessText').classList.add('d-none');
+   
+     const rawImportText = document.getElementById('importJsonTextarea').value.trim();
+     if (!rawImportText) {
+       showImportError('請先貼上 JSON 內容，或選擇要上傳的 .json 檔案。');
+       return;
+     }
+   
+     let parsedImportData;
+     try {
+       parsedImportData = JSON.parse(rawImportText);
+     } catch (error) {
+       showImportError('JSON 格式錯誤，請確認內容完整且格式正確。');
+       return;
+     }
+   
+     const candidateLevelsById = parsedImportData.coreLevels || parsedImportData;
+     const didApplyAnyLevel = applyImportedCoreLevels(candidateLevelsById);
+   
+     if (!didApplyAnyLevel) {
+       showImportError('沒有找到可辨識的核心資料，請確認 JSON 內容是否來自本工具的匯出檔案。');
+       return;
+     }
+   
+     applyImportedOwnedResources(parsedImportData.ownedResources);
+     syncOwnedResourceInputsToState();
+     saveCoreLevelsToLocalStorage();
+     renderHexagonPlate();
+     refreshAllProgressSections();
+   
+     document.getElementById('importSuccessText').classList.remove('d-none');
+   });
    
    /* -------------------------------------------------------------------------
       初始化

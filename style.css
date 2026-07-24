@@ -355,6 +355,14 @@ header h1 {
   padding: 10px 12px;
   margin-bottom: 10px;
 }
+
+.backup-section-subtitle {
+  font-family: var(--font-display);
+  color: var(--gold-bright);
+  letter-spacing: 0.08em;
+  font-size: 13px;
+}
+.modal hr { border-color: rgba(255, 255, 255, 0.15); opacity: 1; }
 .backup-slot-row:last-child { margin-bottom: 0; }
 
 /* ===== Bootstrap Modal 改為深色玻璃風格 ===== */
