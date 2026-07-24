@@ -437,43 +437,86 @@ header h1 {
 }
 .inventory-clear-btn:hover { background-color: rgba(255, 255, 255, 0.08); color: #fff; }
 
-.quick-add-row {
+/* + / - 按鈕共用同一套外觀（原本 .inventory-step-btn 樣式延伸給新的 .inventory-plus-btn） */
+.inventory-plus-btn {
+  background-color: rgba(94, 234, 212, 0.08);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  color: #5eead4;
+  font-weight: 700;
+  width: 38px;
+}
+.inventory-plus-btn:hover { background-color: rgba(94, 234, 212, 0.22); color: #fff; border-color: #5eead4; }
+.inventory-plus-btn:active { transform: translateY(1px); }
+.inventory-plus-btn[aria-expanded="true"] {
+  background-color: rgba(94, 234, 212, 0.28);
+  border-color: #5eead4;
+  box-shadow: 0 0 8px rgba(94, 234, 212, 0.5);
+}
+
+/* 快速累加氣泡選單：深色玻璃擬態 + 冰藍微光邊框 */
+.quick-add-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  width: max-content;
+  min-width: 150px;
+  max-width: min(220px, 85vw);
+  background: rgba(8, 20, 32, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(94, 234, 212, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(94, 234, 212, 0.18);
+  padding: 8px;
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.quick-add-popover.is-open {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.quick-add-popover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: rgba(94, 234, 212, 0.4);
+}
+.quick-add-popover::after {
+  content: '';
+  position: absolute;
+  bottom: 100%; left: 50%;
+  transform: translateX(-50%) translateY(1px);
+  border: 5px solid transparent;
+  border-bottom-color: rgba(8, 20, 32, 0.98);
+}
+.quick-add-menu-item {
   display: flex;
-  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
   gap: 5px;
-  justify-content: center;
-  margin-top: 8px;
-}
-.quick-add-btn {
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1;
-  padding: 4px 9px;
-  border-radius: 999px;
-  white-space: nowrap;
-  background: linear-gradient(160deg, rgba(255,255,255,0.1), rgba(15,23,42,0.5));
-  border: 1px solid rgba(129, 140, 248, 0.35);
-  color: #c7d2fe;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #e5f9f5;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.quick-add-btn:hover {
-  background: linear-gradient(160deg, rgba(129,140,248,0.28), rgba(88,28,135,0.35));
-  box-shadow: 0 0 8px rgba(129,140,248,0.65), 0 0 4px rgba(56,189,248,0.45);
-  color: #fff;
-  border-color: rgba(165,180,252,0.6);
-}
-.quick-add-btn:active { transform: translateY(1px); }
-.quick-add-btn.quick-add-reset {
-  border-color: rgba(248,113,113,0.35);
-  color: #fca5a5;
-}
-.quick-add-btn.quick-add-reset:hover {
-  background: linear-gradient(160deg, rgba(248,113,113,0.25), rgba(127,29,29,0.35));
-  box-shadow: 0 0 8px rgba(248,113,113,0.55);
-  color: #fff;
-  border-color: rgba(252,165,165,0.6);
-}
+.quick-add-menu-item:hover { background: rgba(94, 234, 212, 0.16); color: #fff; }
+.quick-add-menu-item .quick-add-note { font-size: 10px; font-weight: 500; opacity: 0.65; }
+.quick-add-divider { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 6px 2px; opacity: 1; }
+.quick-add-clear { color: #fca5a5; }
+.quick-add-clear:hover { background: rgba(248, 113, 113, 0.16); color: #fff; }
 
 /* 進度條上的「持有資源可涵蓋」高亮光效：疊在實際已耗用進度條下方，
    露出的那一段（已耗用% 到 涵蓋% 之間）代表目前持有資源額外能補到的進度 */

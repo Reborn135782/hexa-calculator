@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Bootstrap 5 CDN -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 <div class="container py-4 app-container">
@@ -58,32 +58,34 @@
       <div class="row g-3 justify-content-center">
         <div class="col-6 col-sm-5">
           <label class="inventory-label" for="ownedErdaInput"><span class="inventory-icon">🔶</span>Sol Erda</label>
-          <div class="input-group inventory-input-group">
+          <div class="input-group inventory-input-group position-relative">
             <button type="button" class="btn inventory-step-btn" data-resource="erda" data-step="-1" aria-label="減少 Sol Erda">−</button>
             <input type="number" min="0" step="1" class="form-control inventory-input" id="ownedErdaInput" value="0">
-            <button type="button" class="btn inventory-step-btn" data-resource="erda" data-step="1" aria-label="增加 Sol Erda">＋</button>
-          </div>
-          <div class="quick-add-row" data-resource="erda">
-            <button type="button" class="quick-add-btn" data-amount="1">+1</button>
-            <button type="button" class="quick-add-btn" data-amount="2">+2</button>
-            <button type="button" class="quick-add-btn" data-amount="9">+9(週任)</button>
-            <button type="button" class="quick-add-btn quick-add-reset" data-amount="reset">Reset</button>
+            <button type="button" class="btn inventory-plus-btn" data-resource="erda" aria-label="Sol Erda 快速累加選單" aria-haspopup="true">＋</button>
+            <div class="quick-add-popover" data-resource="erda" id="quickAddPopover-erda">
+              <button type="button" class="quick-add-menu-item" data-amount="1">+1 <span class="quick-add-note">基礎</span></button>
+              <button type="button" class="quick-add-menu-item" data-amount="2">+2</button>
+              <button type="button" class="quick-add-menu-item" data-amount="9">+9 <span class="quick-add-note">週任</span></button>
+              <hr class="quick-add-divider">
+              <button type="button" class="quick-add-menu-item quick-add-clear" data-amount="clear">清空欄位</button>
+            </div>
           </div>
         </div>
         <div class="col-6 col-sm-5">
           <label class="inventory-label" for="ownedFragmentInput"><span class="inventory-icon">🔷</span>Fragment</label>
-          <div class="input-group inventory-input-group">
+          <div class="input-group inventory-input-group position-relative">
             <button type="button" class="btn inventory-step-btn" data-resource="fragments" data-step="-1" aria-label="減少 Fragment">−</button>
             <input type="number" min="0" step="1" class="form-control inventory-input" id="ownedFragmentInput" value="0">
-            <button type="button" class="btn inventory-step-btn" data-resource="fragments" data-step="1" aria-label="增加 Fragment">＋</button>
-          </div>
-          <div class="quick-add-row" data-resource="fragments">
-            <button type="button" class="quick-add-btn" data-amount="30">+30(交換券)</button>
-            <button type="button" class="quick-add-btn" data-amount="90">+90(週任)</button>
-            <button type="button" class="quick-add-btn" data-amount="40">+40(高山)</button>
-            <button type="button" class="quick-add-btn" data-amount="55">+55(安格洛)</button>
-            <button type="button" class="quick-add-btn" data-amount="75">+75(噩夢)</button>
-            <button type="button" class="quick-add-btn quick-add-reset" data-amount="reset">Reset</button>
+            <button type="button" class="btn inventory-plus-btn" data-resource="fragments" aria-label="Fragment 快速累加選單" aria-haspopup="true">＋</button>
+            <div class="quick-add-popover" data-resource="fragments" id="quickAddPopover-fragments">
+              <button type="button" class="quick-add-menu-item" data-amount="30">+30 <span class="quick-add-note">交換券</span></button>
+              <button type="button" class="quick-add-menu-item" data-amount="40">+40 <span class="quick-add-note">高山</span></button>
+              <button type="button" class="quick-add-menu-item" data-amount="55">+55 <span class="quick-add-note">安格洛</span></button>
+              <button type="button" class="quick-add-menu-item" data-amount="75">+75 <span class="quick-add-note">噩夢</span></button>
+              <button type="button" class="quick-add-menu-item" data-amount="90">+90 <span class="quick-add-note">週任</span></button>
+              <hr class="quick-add-divider">
+              <button type="button" class="quick-add-menu-item quick-add-clear" data-amount="clear">清空欄位</button>
+            </div>
           </div>
         </div>
       </div>

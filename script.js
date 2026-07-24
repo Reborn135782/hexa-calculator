@@ -300,21 +300,56 @@
      scheduleAutoSave();
    });
    
-   // 快速累加捷徑按鈕（例如 +9(週任)、+30(交換券) 等）：點擊後直接累加到目前輸入框的數值上，
-   // 共用同一套 updateOwnedResourceValue，所以會自動同步輸入框、重算進度、排程存檔
-   document.querySelectorAll('.quick-add-row').forEach(quickAddRowElement => {
-     const resourceKey = quickAddRowElement.dataset.resource;
-     quickAddRowElement.querySelectorAll('.quick-add-btn').forEach(quickAddButtonElement => {
-       quickAddButtonElement.addEventListener('click', () => {
-         if (quickAddButtonElement.dataset.amount === 'reset') {
-           updateOwnedResourceValue(resourceKey, 0);
-         } else {
-           const addAmount = parseInt(quickAddButtonElement.dataset.amount, 10);
-           updateOwnedResourceValue(resourceKey, playerOwnedResources[resourceKey] + addAmount);
-         }
-       });
+   /* -------------------------------------------------------------------------
+      「+」按鈕的快速累加氣泡選單 (Quick Add Popover)
+      點擊「+」只負責開關選單本身（不再直接 +1），實際的累加動作都在選單項目上
+      ------------------------------------------------------------------------- */
+   function closeAllQuickAddPopovers() {
+     document.querySelectorAll('.quick-add-popover.is-open').forEach(popoverElement => {
+       popoverElement.classList.remove('is-open');
+     });
+     document.querySelectorAll('.inventory-plus-btn[aria-expanded="true"]').forEach(plusButtonElement => {
+       plusButtonElement.setAttribute('aria-expanded', 'false');
+     });
+   }
+   
+   document.querySelectorAll('.inventory-plus-btn').forEach(plusButtonElement => {
+     plusButtonElement.setAttribute('aria-expanded', 'false');
+     plusButtonElement.addEventListener('click', (event) => {
+       event.stopPropagation();
+       const resourceKey = plusButtonElement.dataset.resource;
+       const popoverElement = document.getElementById(`quickAddPopover-${resourceKey}`);
+       const wasAlreadyOpen = popoverElement.classList.contains('is-open');
+       closeAllQuickAddPopovers();
+       if (!wasAlreadyOpen) {
+         popoverElement.classList.add('is-open');
+         plusButtonElement.setAttribute('aria-expanded', 'true');
+       }
      });
    });
+   
+   // 點擊選單本身不應該被「點擊空白處關閉」的邏輯誤判為點擊外部
+   document.querySelectorAll('.quick-add-popover').forEach(popoverElement => {
+     popoverElement.addEventListener('click', (event) => event.stopPropagation());
+   });
+   
+   // 點擊選單裡的任一項目：累加數值（或清空），然後自動關閉選單
+   document.querySelectorAll('.quick-add-menu-item').forEach(menuItemElement => {
+     menuItemElement.addEventListener('click', () => {
+       const popoverElement = menuItemElement.closest('.quick-add-popover');
+       const resourceKey = popoverElement.dataset.resource;
+       if (menuItemElement.dataset.amount === 'clear') {
+         updateOwnedResourceValue(resourceKey, 0);
+       } else {
+         const addAmount = parseInt(menuItemElement.dataset.amount, 10);
+         updateOwnedResourceValue(resourceKey, playerOwnedResources[resourceKey] + addAmount);
+       }
+       closeAllQuickAddPopovers();
+     });
+   });
+   
+   // 點擊頁面上任何其他空白處：關閉所有開啟中的選單
+   document.addEventListener('click', () => closeAllQuickAddPopovers());
    
    /* -------------------------------------------------------------------------
       六角星盤渲染（含鎖定格）
