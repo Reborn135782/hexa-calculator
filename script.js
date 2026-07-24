@@ -285,14 +285,6 @@
      updateOwnedResourceValue('fragments', event.target.value);
    });
    
-   document.querySelectorAll('.inventory-step-btn').forEach(stepButtonElement => {
-     stepButtonElement.addEventListener('click', () => {
-       const resourceKey = stepButtonElement.dataset.resource;
-       const stepAmount = parseInt(stepButtonElement.dataset.step, 10);
-       updateOwnedResourceValue(resourceKey, playerOwnedResources[resourceKey] + stepAmount);
-     });
-   });
-   
    document.getElementById('clearOwnedResourcesButton').addEventListener('click', () => {
      playerOwnedResources = { erda: 0, fragments: 0 };
      syncOwnedResourceInputsToState();

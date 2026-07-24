@@ -407,8 +407,11 @@ header h1 {
 .inventory-input {
   background-color: rgba(6, 18, 26, 0.65);
   border: 1px solid rgba(94, 234, 212, 0.35);
+  border-right: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 8px 0 0 8px;
   color: #fff;
   text-align: center;
+  font-size: 1.25rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -418,15 +421,6 @@ header h1 {
   color: #fff;
   box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.28);
 }
-.inventory-step-btn {
-  background-color: rgba(94, 234, 212, 0.08);
-  border: 1px solid rgba(94, 234, 212, 0.35);
-  color: #5eead4;
-  font-weight: 700;
-  width: 38px;
-}
-.inventory-step-btn:hover { background-color: rgba(94, 234, 212, 0.22); color: #fff; border-color: #5eead4; }
-.inventory-step-btn:active { transform: translateY(1px); }
 .inventory-clear-btn {
   background-color: transparent;
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -439,10 +433,11 @@ header h1 {
 
 .player-inventory-card { position: relative; z-index: 5; }
 
-/* + / - 按鈕共用同一套外觀（原本 .inventory-step-btn 樣式延伸給新的 .inventory-plus-btn） */
+/* 右側「+」按鈕：維持右側圓角，跟輸入框之間隔著一條冰藍分隔線（由輸入框的 border-right 產生） */
 .inventory-plus-btn {
   background-color: rgba(94, 234, 212, 0.08);
   border: 1px solid rgba(94, 234, 212, 0.35);
+  border-radius: 0 8px 8px 0;
   color: #5eead4;
   font-weight: 700;
   width: 38px;
@@ -453,6 +448,21 @@ header h1 {
   background-color: rgba(94, 234, 212, 0.28);
   border-color: #5eead4;
   box-shadow: 0 0 8px rgba(94, 234, 212, 0.5);
+}
+
+/* 保留原生數字輸入框的上下微調箭頭（絕不隱藏），並美化成冰藍科技發光質感 */
+.inventory-input::-webkit-inner-spin-button,
+.inventory-input::-webkit-outer-spin-button {
+  opacity: 0.75;
+  cursor: pointer;
+  filter: invert(0.8) sepia(1) hue-rotate(140deg) saturate(3);
+  padding: 2px;
+  margin-right: 4px;
+}
+.inventory-input::-webkit-inner-spin-button:hover,
+.inventory-input::-webkit-outer-spin-button:hover {
+  opacity: 1;
+  filter: invert(1) drop-shadow(0 0 4px #00f2fe);
 }
 
 /* 快速累加氣泡選單：深色玻璃擬態 + 冰藍微光邊框
@@ -468,9 +478,9 @@ header h1 {
   width: max-content;
   min-width: 140px;
   max-width: min(240px, 85vw);
-  background: rgba(8, 20, 32, 0.96);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.95);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(94, 234, 212, 0.4);
   border-radius: 10px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(94, 234, 212, 0.18);
@@ -499,7 +509,7 @@ header h1 {
   bottom: 100%; left: 50%;
   transform: translateX(-50%) translateY(1px);
   border: 5px solid transparent;
-  border-bottom-color: rgba(8, 20, 32, 0.98);
+  border-bottom-color: rgba(15, 23, 42, 0.98);
 }
 .quick-add-menu-item {
   display: flex;
