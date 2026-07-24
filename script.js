@@ -300,6 +300,22 @@
      scheduleAutoSave();
    });
    
+   // 快速累加捷徑按鈕（例如 +9(週任)、+30(交換券) 等）：點擊後直接累加到目前輸入框的數值上，
+   // 共用同一套 updateOwnedResourceValue，所以會自動同步輸入框、重算進度、排程存檔
+   document.querySelectorAll('.quick-add-row').forEach(quickAddRowElement => {
+     const resourceKey = quickAddRowElement.dataset.resource;
+     quickAddRowElement.querySelectorAll('.quick-add-btn').forEach(quickAddButtonElement => {
+       quickAddButtonElement.addEventListener('click', () => {
+         if (quickAddButtonElement.dataset.amount === 'reset') {
+           updateOwnedResourceValue(resourceKey, 0);
+         } else {
+           const addAmount = parseInt(quickAddButtonElement.dataset.amount, 10);
+           updateOwnedResourceValue(resourceKey, playerOwnedResources[resourceKey] + addAmount);
+         }
+       });
+     });
+   });
+   
    /* -------------------------------------------------------------------------
       六角星盤渲染（含鎖定格）
       ------------------------------------------------------------------------- */

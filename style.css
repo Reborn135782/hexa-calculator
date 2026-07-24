@@ -437,6 +437,44 @@ header h1 {
 }
 .inventory-clear-btn:hover { background-color: rgba(255, 255, 255, 0.08); color: #fff; }
 
+.quick-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.quick-add-btn {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  background: linear-gradient(160deg, rgba(255,255,255,0.1), rgba(15,23,42,0.5));
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  color: #c7d2fe;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.quick-add-btn:hover {
+  background: linear-gradient(160deg, rgba(129,140,248,0.28), rgba(88,28,135,0.35));
+  box-shadow: 0 0 8px rgba(129,140,248,0.65), 0 0 4px rgba(56,189,248,0.45);
+  color: #fff;
+  border-color: rgba(165,180,252,0.6);
+}
+.quick-add-btn:active { transform: translateY(1px); }
+.quick-add-btn.quick-add-reset {
+  border-color: rgba(248,113,113,0.35);
+  color: #fca5a5;
+}
+.quick-add-btn.quick-add-reset:hover {
+  background: linear-gradient(160deg, rgba(248,113,113,0.25), rgba(127,29,29,0.35));
+  box-shadow: 0 0 8px rgba(248,113,113,0.55);
+  color: #fff;
+  border-color: rgba(252,165,165,0.6);
+}
+
 /* 進度條上的「持有資源可涵蓋」高亮光效：疊在實際已耗用進度條下方，
    露出的那一段（已耗用% 到 涵蓋% 之間）代表目前持有資源額外能補到的進度 */
 .progress { position: relative; overflow: hidden; }
