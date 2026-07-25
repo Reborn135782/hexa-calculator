@@ -58,6 +58,32 @@
        { erda: 7, frag: 248 }, { erda: 7, frag: 262 }, { erda: 7, frag: 275 },
        { erda: 7, frag: 289 }, { erda: 9, frag: 303 }, { erda: 9, frag: 317 },
        { erda: 9, frag: 330 }, { erda: 10, frag: 344 }, { erda: 20, frag: 750 }
+     ],
+     // 第三精通/技能核心（Skill Node 3）：消耗曲線跟原本的 Skill 1/2 不同，獨立一張表
+     "skill node 3": [
+       { erda: 7, frag: 140 }, { erda: 1, frag: 21 }, { erda: 1, frag: 26 },
+       { erda: 1, frag: 30 }, { erda: 1, frag: 34 }, { erda: 2, frag: 38 },
+       { erda: 2, frag: 43 }, { erda: 2, frag: 47 }, { erda: 2, frag: 51 },
+       { erda: 8, frag: 142 }, { erda: 2, frag: 62 }, { erda: 2, frag: 69 },
+       { erda: 3, frag: 77 }, { erda: 3, frag: 83 }, { erda: 3, frag: 91 },
+       { erda: 3, frag: 98 }, { erda: 3, frag: 105 }, { erda: 3, frag: 112 },
+       { erda: 3, frag: 120 }, { erda: 12, frag: 252 }, { erda: 4, frag: 128 },
+       { erda: 4, frag: 136 }, { erda: 4, frag: 145 }, { erda: 4, frag: 152 },
+       { erda: 4, frag: 161 }, { erda: 4, frag: 168 }, { erda: 5, frag: 177 },
+       { erda: 5, frag: 184 }, { erda: 5, frag: 193 }, { erda: 14, frag: 357 }
+     ],
+     // 職業群通用核心（Common Node 3）：消耗曲線跟原本的 Common 1/2 不同，獨立一張表
+     "common node 3": [
+       { erda: 4, frag: 90 }, { erda: 1, frag: 25 }, { erda: 1, frag: 30 },
+       { erda: 1, frag: 35 }, { erda: 2, frag: 40 }, { erda: 2, frag: 45 },
+       { erda: 2, frag: 50 }, { erda: 3, frag: 55 }, { erda: 3, frag: 60 },
+       { erda: 9, frag: 180 }, { erda: 3, frag: 73 }, { erda: 3, frag: 81 },
+       { erda: 3, frag: 90 }, { erda: 3, frag: 98 }, { erda: 4, frag: 107 },
+       { erda: 4, frag: 115 }, { erda: 4, frag: 124 }, { erda: 4, frag: 132 },
+       { erda: 4, frag: 141 }, { erda: 14, frag: 315 }, { erda: 4, frag: 151 },
+       { erda: 5, frag: 160 }, { erda: 5, frag: 170 }, { erda: 5, frag: 179 },
+       { erda: 5, frag: 189 }, { erda: 5, frag: 198 }, { erda: 5, frag: 208 },
+       { erda: 5, frag: 217 }, { erda: 6, frag: 227 }, { erda: 18, frag: 450 }
      ]
    };
    
@@ -67,18 +93,20 @@
       或座標計算——多出來的 slotIndex 沒有對應資料時，畫面會自動顯示鎖定格。
       ------------------------------------------------------------------------- */
    const CORE_DEFINITIONS = [
-     { id: 'skill1',   name: 'Skill 1',   type: 'skill node',   quadrant: 'tl', slotIndex: 0 },
-     { id: 'skill2',   name: 'Skill 2',   type: 'skill node',   quadrant: 'tl', slotIndex: 1 },
-     { id: 'mastery1', name: 'Mastery 1', type: 'mastery node', quadrant: 'tr', slotIndex: 0 },
-     { id: 'mastery2', name: 'Mastery 2', type: 'mastery node', quadrant: 'tr', slotIndex: 1 },
-     { id: 'mastery3', name: 'Mastery 3', type: 'mastery node', quadrant: 'tr', slotIndex: 2 },
-     { id: 'mastery4', name: 'Mastery 4', type: 'mastery node', quadrant: 'tr', slotIndex: 3 },
-     { id: 'boost1',   name: 'Boost 1',   type: 'boost node',   quadrant: 'bl', slotIndex: 0 },
-     { id: 'boost2',   name: 'Boost 2',   type: 'boost node',   quadrant: 'bl', slotIndex: 1 },
-     { id: 'boost3',   name: 'Boost 3',   type: 'boost node',   quadrant: 'bl', slotIndex: 2 },
-     { id: 'boost4',   name: 'Boost 4',   type: 'boost node',   quadrant: 'bl', slotIndex: 3 },
-     { id: 'common1',  name: 'Common 1',  type: 'common node',  quadrant: 'br', slotIndex: 0 },
-     { id: 'common2',  name: 'Common 2',  type: 'common node',  quadrant: 'br', slotIndex: 1 },
+     { id: 'skill1',   name: 'Skill 1',   type: 'skill node',     quadrant: 'tl', slotIndex: 0 },
+     { id: 'skill2',   name: 'Skill 2',   type: 'skill node',     quadrant: 'tl', slotIndex: 1 },
+     { id: 'skill3',   name: 'Skill 3',   type: 'skill node 3',   quadrant: 'tl', slotIndex: 2 },
+     { id: 'mastery1', name: 'Mastery 1', type: 'mastery node',   quadrant: 'tr', slotIndex: 0 },
+     { id: 'mastery2', name: 'Mastery 2', type: 'mastery node',   quadrant: 'tr', slotIndex: 1 },
+     { id: 'mastery3', name: 'Mastery 3', type: 'mastery node',   quadrant: 'tr', slotIndex: 2 },
+     { id: 'mastery4', name: 'Mastery 4', type: 'mastery node',   quadrant: 'tr', slotIndex: 3 },
+     { id: 'boost1',   name: 'Boost 1',   type: 'boost node',     quadrant: 'bl', slotIndex: 0 },
+     { id: 'boost2',   name: 'Boost 2',   type: 'boost node',     quadrant: 'bl', slotIndex: 1 },
+     { id: 'boost3',   name: 'Boost 3',   type: 'boost node',     quadrant: 'bl', slotIndex: 2 },
+     { id: 'boost4',   name: 'Boost 4',   type: 'boost node',     quadrant: 'bl', slotIndex: 3 },
+     { id: 'common1',  name: 'Common 1',  type: 'common node',    quadrant: 'br', slotIndex: 0 },
+     { id: 'common2',  name: 'Common 2',  type: 'common node',    quadrant: 'br', slotIndex: 1 },
+     { id: 'common3',  name: 'Common 3',  type: 'common node 3',  quadrant: 'br', slotIndex: 2 },
    ];
    
    // 底部「畢業進度（不含 Janus）」卡片要排除的核心 id（Janus 是 common1 的別名）
